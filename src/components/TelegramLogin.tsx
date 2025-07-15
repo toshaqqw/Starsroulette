@@ -44,7 +44,7 @@ const TelegramLogin: React.FC<TelegramLoginProps> = ({ botName, onAuth }) => {
     script.setAttribute("data-size", "large");
     script.setAttribute("data-userpic", "true");
     script.setAttribute("data-request-access", "write");
-    script.setAttribute("data-auth-url", "https://твойдомен.сервер/telegram-auth");
+    script.setAttribute("data-auth-url", "https://playful-sherbet-470d9b.netlify.app/");
 
     if (containerRef.current) {
       containerRef.current.innerHTML = "";
