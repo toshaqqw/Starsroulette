@@ -16,17 +16,9 @@ interface TelegramLoginProps {
 }
 
 const TelegramLogin: React.FC<TelegramLoginProps> = ({ botName, onAuth }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = "https://telegram.org/js/telegram-widget.js?15";
-    script.setAttribute("data-telegram-login", botName);
-    script.setAttribute("data-size", "large");
-    script.setAttribute("data-userpic", "true");
-    script.setAttribute("data-auth-url", "");
-
     // @ts-ignore
     window.TelegramLoginWidget = {
       dataOnauth: (user: TelegramUser) => {
@@ -35,10 +27,26 @@ const TelegramLogin: React.FC<TelegramLoginProps> = ({ botName, onAuth }) => {
     };
 
     const container = containerRef.current;
-    if (container) {
-      container.innerHTML = "";
-      container.appendChild(script);
-    }
+    if (!container) return;
+
+    const script = document.createElement("script");
+    script.src = "https://telegram.org/js/telegram-widget.js?15";
+    script.async = true;
+    script.setAttribute("data-telegram-login", botName);
+    script.setAttribute("data-size", "large");
+    script.setAttribute("data-userpic", "true");
+    script.setAttribute("data-auth-url", "");
+
+    container.innerHTML = "";
+    container.appendChild(script);
+
+    return () => {
+      if (container) {
+        container.innerHTML = "";
+      }
+      // @ts-ignore
+      delete window.TelegramLoginWidget;
+    };
   }, [botName, onAuth]);
 
   return <div ref={containerRef}></div>;
