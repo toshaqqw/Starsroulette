@@ -16,37 +16,40 @@ interface TelegramLoginProps {
 }
 
 const TelegramLogin: React.FC<TelegramLoginProps> = ({ botName, onAuth }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // @ts-ignore
-    window.TelegramLoginWidget = {
-      dataOnauth: (user: TelegramUser) => {
-        onAuth(user);
-      },
-    };
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    const hash = urlParams.get("hash");
 
-    const container = containerRef.current;
-    if (!container) return;
+    if (id && hash) {
+      const user: TelegramUser = {
+        id: urlParams.get("id")!,
+        first_name: urlParams.get("first_name") || "",
+        last_name: urlParams.get("last_name") || "",
+        username: urlParams.get("username") || "",
+        photo_url: urlParams.get("photo_url") || "",
+        auth_date: urlParams.get("auth_date") || "",
+        hash: urlParams.get("hash") || "",
+      };
+
+      onAuth(user);
+    }
 
     const script = document.createElement("script");
-    script.src = "https://telegram.org/js/telegram-widget.js?15";
     script.async = true;
+    script.src = "https://telegram.org/js/telegram-widget.js?15";
     script.setAttribute("data-telegram-login", botName);
     script.setAttribute("data-size", "large");
     script.setAttribute("data-userpic", "true");
-    script.setAttribute("data-auth-url", "");
+    script.setAttribute("data-request-access", "write");
+    script.setAttribute("data-auth-url", "https://твойдомен.сервер/telegram-auth");
 
-    container.innerHTML = "";
-    container.appendChild(script);
-
-    return () => {
-      if (container) {
-        container.innerHTML = "";
-      }
-      // @ts-ignore
-      delete window.TelegramLoginWidget;
-    };
+    if (containerRef.current) {
+      containerRef.current.innerHTML = "";
+      containerRef.current.appendChild(script);
+    }
   }, [botName, onAuth]);
 
   return <div ref={containerRef}></div>;
