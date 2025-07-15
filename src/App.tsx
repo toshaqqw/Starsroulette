@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
+import { Routes, Route, NavLink } from "react-router-dom";
 import TelegramLogin from "./components/TelegramLogin";
 import ProfilePage from "./components/ProfilePage";
-
-
 
 interface TelegramUser {
   id: string;
@@ -21,8 +19,14 @@ const Header: React.FC<{ user: TelegramUser | null }> = ({ user }) => {
       <div style={styles.logo}>StarsRoulette</div>
       {user ? (
         <div style={styles.user}>
-          <img src={user.photo_url || "https://i.pravatar.cc/40"} alt="avatar" style={styles.avatar} />
-          <span>{user.first_name} {user.last_name || ""}</span>
+          <img
+            src={user.photo_url || "https://i.pravatar.cc/40"}
+            alt="avatar"
+            style={styles.avatar}
+          />
+          <span>
+            {user.first_name} {user.last_name || ""}
+          </span>
         </div>
       ) : (
         <div style={{ color: "#aaa" }}>Пожалуйста, войдите через Telegram</div>
@@ -34,10 +38,16 @@ const Header: React.FC<{ user: TelegramUser | null }> = ({ user }) => {
 const Footer: React.FC = () => {
   return (
     <footer style={styles.footer}>
-      <NavLink to="/" style={({ isActive }) => isActive ? styles.activeLink : styles.link}>
+      <NavLink
+        to="/"
+        style={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+      >
         🎲 Roulette
       </NavLink>
-      <NavLink to="/profile" style={({ isActive }) => isActive ? styles.activeLink : styles.link}>
+      <NavLink
+        to="/profile"
+        style={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+      >
         👤 Profile
       </NavLink>
     </footer>
@@ -48,7 +58,6 @@ const App: React.FC = () => {
   const [user, setUser] = useState<TelegramUser | null>(null);
 
   useEffect(() => {
-    // при загрузке читаем пользователя из localStorage
     const savedUser = localStorage.getItem("telegramUser");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -61,7 +70,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Router>
+    <>
       <Header user={user} />
 
       {!user ? (
@@ -74,15 +83,12 @@ const App: React.FC = () => {
             path="/"
             element={<div style={{ padding: 20 }}>🎯 Главная страница в разработке...</div>}
           />
-          <Route
-            path="/profile"
-            element={<ProfilePage user={user} />}
-          />
+          <Route path="/profile" element={<ProfilePage user={user} />} />
         </Routes>
       )}
 
       <Footer />
-    </Router>
+    </>
   );
 };
 
