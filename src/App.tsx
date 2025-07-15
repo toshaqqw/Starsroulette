@@ -1,121 +1,134 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
+import TelegramLogin from "./components/TelegramLogin";
+import ProfilePage from "./components/ProfilePage";
 
-import Header from "./components/Header";
-import FooterNav from "./components/FooterNav";
 
-import Wheel from "./components/Wheel";
-import Timer from "./components/Timer";
-import BetForm from "./components/BetForm";
-import PlayerList from "./components/PlayerList";
-import Winnerbar from "./components/Winnerbar";
-import BankInfo from "./components/BankInfo";
-import ProfilePage from "./components/ProfilePage"; // Импорт страницы профиля
 
-// Тип ставки
-interface Bet {
-  name: string;
-  avatar: string;
-  amount: number;
+interface TelegramUser {
+  id: string;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  photo_url?: string;
+  auth_date: string;
+  hash: string;
 }
 
-// Вынесем основную логику рулетки в отдельный компонент MainPage
-const MainPage: React.FC = () => {
-  const [bets, setBets] = useState<Bet[]>([]);
-  const [winner, setWinner] = useState<Bet | null>(null);
-  const [timerActive, setTimerActive] = useState(false);
-
-  useEffect(() => {
-    setTimerActive(bets.length >= 2);
-  }, [bets]);
-
-  const handlePlaceBet = (amount: number) => {
-    const newBet: Bet = {
-      name: "User", // позже будет Telegram username
-      avatar: "https://i.pravatar.cc/30",
-      amount,
-    };
-    setBets((prev) => [...prev, newBet]);
-  };
-
-  const handleTimeout = () => {
-    if (bets.length === 0) return;
-    const total = bets.reduce((sum, b) => sum + b.amount, 0);
-    const r = Math.random() * total;
-    let acc = 0;
-    for (let b of bets) {
-      acc += b.amount;
-      if (r <= acc) {
-        setWinner(b);
-        break;
-      }
-    }
-    setTimeout(() => {
-      setBets([]);
-      setWinner(null);
-    }, 5000);
-  };
-
+const Header: React.FC<{ user: TelegramUser | null }> = ({ user }) => {
   return (
-    <div style={styles.container}>
-      <div style={styles.section}>
-        <Wheel bets={bets} />
-      </div>
+    <header style={styles.header}>
+      <div style={styles.logo}>StarsRoulette</div>
+      {user ? (
+        <div style={styles.user}>
+          <img src={user.photo_url || "https://i.pravatar.cc/40"} alt="avatar" style={styles.avatar} />
+          <span>{user.first_name} {user.last_name || ""}</span>
+        </div>
+      ) : (
+        <div style={{ color: "#aaa" }}>Пожалуйста, войдите через Telegram</div>
+      )}
+    </header>
+  );
+};
 
-      <div style={styles.infoRow}>
-        <Timer active={timerActive} onTimeout={handleTimeout} />
-        <BankInfo />
-      </div>
-
-      <BetForm onPlaceBet={handlePlaceBet} />
-      <PlayerList bets={bets} />
-
-      <div style={styles.section}>
-        <Winnerbar winner={winner} />
-      </div>
-    </div>
+const Footer: React.FC = () => {
+  return (
+    <footer style={styles.footer}>
+      <NavLink to="/" style={({ isActive }) => isActive ? styles.activeLink : styles.link}>
+        🎲 Roulette
+      </NavLink>
+      <NavLink to="/profile" style={({ isActive }) => isActive ? styles.activeLink : styles.link}>
+        👤 Profile
+      </NavLink>
+    </footer>
   );
 };
 
 const App: React.FC = () => {
-  const navigate = useNavigate();
+  const [user, setUser] = useState<TelegramUser | null>(null);
 
-  // Клик по аватару в Header
-  const handleAvatarClick = () => {
-    navigate("/profile");
+  useEffect(() => {
+    // при загрузке читаем пользователя из localStorage
+    const savedUser = localStorage.getItem("telegramUser");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleAuth = (tgUser: TelegramUser) => {
+    setUser(tgUser);
+    localStorage.setItem("telegramUser", JSON.stringify(tgUser));
   };
 
   return (
-    <>
-      <Header username="StarsUser" balance={1234.56} onAvatarClick={handleAvatarClick} />
+    <Router>
+      <Header user={user} />
 
-      <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-      </Routes>
+      {!user ? (
+        <div style={{ padding: 20 }}>
+          <TelegramLogin botName="StartRule_bot" onAuth={handleAuth} />
+        </div>
+      ) : (
+        <Routes>
+          <Route
+            path="/"
+            element={<div style={{ padding: 20 }}>🎯 Главная страница в разработке...</div>}
+          />
+          <Route
+            path="/profile"
+            element={<ProfilePage user={user} />}
+          />
+        </Routes>
+      )}
 
-      <FooterNav />
-    </>
+      <Footer />
+    </Router>
   );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    backgroundColor: "#0f172a",
+  header: {
+    backgroundColor: "#1e293b",
     color: "#fff",
-    minHeight: "100vh",
-    padding: "2rem",
-    paddingBottom: "5rem", // чтобы не перекрывалось футером
-    fontFamily: "'Inter', sans-serif",
-  },
-  section: {
-    margin: "2rem 0",
-    textAlign: "center",
-  },
-  infoRow: {
+    padding: "1rem 2rem",
     display: "flex",
+    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: "1.5rem",
+  },
+  logo: {
+    fontWeight: "700",
+    fontSize: "1.5rem",
+  },
+  user: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+  },
+  footer: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "4rem",
+    padding: "1rem 0",
+    backgroundColor: "#1e293b",
+    color: "#fff",
+    position: "fixed",
+    bottom: 0,
+    width: "100%",
+  },
+  link: {
+    color: "#bbb",
+    textDecoration: "none",
+    fontSize: "1.2rem",
+  },
+  activeLink: {
+    color: "#f39c12",
+    textDecoration: "underline",
+    fontWeight: "700",
   },
 };
 

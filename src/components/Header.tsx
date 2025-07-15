@@ -3,16 +3,17 @@ import React from "react";
 interface HeaderProps {
   username: string;
   balance: number;
+  avatar?: string;
   onAvatarClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ username, balance, onAvatarClick }) => {
+const Header: React.FC<HeaderProps> = ({ username, balance, avatar, onAvatarClick }) => {
   return (
     <header style={styles.header}>
       <div style={styles.logo}>StarsRoulette</div>
       <div style={styles.user} onClick={onAvatarClick} title="Перейти в профиль">
         <img
-          src="https://i.pravatar.cc/40"
+          src={avatar || "https://i.pravatar.cc/40"}
           alt="Аватар"
           style={styles.avatar}
         />

@@ -1,9 +1,21 @@
 import React from "react";
 
-const BankInfo: React.FC = () => {
+interface Bet {
+  name: string;
+  avatar: string;
+  amount: number;
+}
+
+interface BankInfoProps {
+  bets: Bet[];
+}
+
+const BankInfo: React.FC<BankInfoProps> = ({ bets }) => {
+  const total = bets.reduce((sum, b) => sum + b.amount, 0);
+
   return (
     <div style={styles.bank}>
-      💼 Банк раунда: 0 ₽
+      💼 Банк раунда: {total} ₽
     </div>
   );
 };

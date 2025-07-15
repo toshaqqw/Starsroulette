@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface Bet {
   name: string;
@@ -11,10 +11,25 @@ interface WinnerbarProps {
 }
 
 const Winnerbar: React.FC<WinnerbarProps> = ({ winner }) => {
+  const [storedWinner, setStoredWinner] = useState<Bet | null>(null);
+
+  useEffect(() => {
+    if (winner) {
+      localStorage.setItem("lastWinner", JSON.stringify(winner));
+      setStoredWinner(winner);
+    } else {
+      // Попытка загрузить из хранилища, если нет текущего победителя
+      const saved = localStorage.getItem("lastWinner");
+      if (saved) {
+        setStoredWinner(JSON.parse(saved));
+      }
+    }
+  }, [winner]);
+
   return (
     <div style={styles.bar}>
-      {winner ? (
-        <p>🏆 Победитель: {winner.name} — 💰 {winner.amount} ₽</p>
+      {storedWinner ? (
+        <p>🏆 Победитель: {storedWinner.name} — 💰 {storedWinner.amount} ₽</p>
       ) : (
         <p>Ожидаем розыгрыш...</p>
       )}
