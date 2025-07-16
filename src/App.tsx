@@ -16,10 +16,11 @@ interface TelegramUser {
 
 const Header: React.FC<{
   user: TelegramUser | null;
+  balance: number;
   onLoginClick: () => void;
   onAvatarClick: () => void;
-  onDepositClick: () => void; // Добавили пропс
-}> = ({ user, onLoginClick, onAvatarClick, onDepositClick }) => {
+  onDepositClick: () => void;
+}> = ({ user, balance, onLoginClick, onAvatarClick, onDepositClick }) => {
   return (
     <header style={styles.header}>
       <div style={styles.logo}>StarsRoulette</div>
@@ -34,6 +35,7 @@ const Header: React.FC<{
             <span>
               {user.first_name} {user.last_name || ""}
             </span>
+            <span style={styles.balance}>Баланс: {balance} ₽</span>
           </div>
           <button style={styles.depositBtn} onClick={onDepositClick}>Пополнить</button>
         </div>
@@ -48,8 +50,9 @@ const Header: React.FC<{
 
 const App: React.FC = () => {
   const [user, setUser] = useState<TelegramUser | null>(null);
+  const [balance, setBalance] = useState<number>(0);
   const [showLogin, setShowLogin] = useState(false);
-  const [showDeposit, setShowDeposit] = useState(false); // Состояние для модалки пополнения
+  const [showDeposit, setShowDeposit] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,11 +60,17 @@ const App: React.FC = () => {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+    const savedBalance = localStorage.getItem("balance");
+    if (savedBalance) {
+      setBalance(Number(savedBalance));
+    }
   }, []);
 
   useEffect(() => {
     if (user) {
       setShowLogin(false);
+    } else {
+      setBalance(0); // Если вышли из аккаунта, сбрасываем баланс
     }
   }, [user]);
 
@@ -73,16 +82,26 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("telegramUser");
+    localStorage.removeItem("balance");
+    setBalance(0);
     navigate("/");
+  };
+
+  const handleDeposit = (amount: number) => {
+    const newBalance = balance + amount;
+    setBalance(newBalance);
+    localStorage.setItem("balance", newBalance.toString());
+    setShowDeposit(false);
   };
 
   return (
     <>
       <Header
         user={user}
+        balance={balance}
         onLoginClick={() => setShowLogin(true)}
         onAvatarClick={() => navigate("/profile")}
-        onDepositClick={() => setShowDeposit(true)}  // Прокидываем обработчик открытия пополнения
+        onDepositClick={() => setShowDeposit(true)}
       />
 
       {showLogin && !user && (
@@ -92,10 +111,7 @@ const App: React.FC = () => {
       {showDeposit && (
         <DepositModal
           onClose={() => setShowDeposit(false)}
-          onDeposit={(amount) => {
-            alert(`Вы пополнили баланс на ${amount} ₽ (пока без интеграции)`);
-            setShowDeposit(false);
-          }}
+          onDeposit={handleDeposit}
         />
       )}
 
@@ -162,6 +178,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: 40,
     height: 40,
     borderRadius: "50%",
+  },
+  balance: {
+    color: "#10b981",
+    fontWeight: "700",
+    fontSize: "1rem",
+    marginLeft: 12,
   },
   loginBtn: {
     backgroundColor: "#f39c12",

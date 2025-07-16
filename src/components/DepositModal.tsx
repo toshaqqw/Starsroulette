@@ -6,46 +6,50 @@ interface DepositModalProps {
 }
 
 const DepositModal: React.FC<DepositModalProps> = ({ onClose, onDeposit }) => {
-  const [amount, setAmount] = useState<number | "">("");
+  const [amount, setAmount] = useState<string>(""); // ввод пользователя
+  const [error, setError] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    if (val === "") {
-      setAmount("");
-      return;
-    }
-    const num = Number(val);
-    if (!isNaN(num)) {
-      setAmount(num);
-    }
+    setAmount(e.target.value);
+    setError("");
   };
 
   const handleSubmit = () => {
-    if (typeof amount === "number" && amount >= 1 && amount <= 100) {
-      onDeposit(amount);
-    } else {
-      alert("Введите сумму от 1 до 100");
+    const num = Number(amount);
+    if (isNaN(num)) {
+      setError("Введите число");
+      return;
     }
+    if (num < 1) {
+      setError("Минимальная сумма — 1 ₽");
+      return;
+    }
+    if (num > 100) {
+      setError("Максимальная сумма — 100 ₽");
+      return;
+    }
+    onDeposit(num);
   };
 
   return (
     <div style={modalStyles.overlay}>
       <div style={modalStyles.modal}>
-        <h2>Пополнить баланс</h2>
+        <h2>Пополнение баланса</h2>
         <input
           type="number"
-          value={amount}
-          onChange={handleChange}
           min={1}
           max={100}
-          placeholder="Сумма от 1 до 100"
+          value={amount}
+          onChange={handleChange}
+          placeholder="Введите сумму (1-100 ₽)"
           style={modalStyles.input}
         />
-        <div style={modalStyles.buttons}>
-          <button onClick={handleSubmit} style={modalStyles.depositBtn}>
+        {error && <div style={modalStyles.error}>{error}</div>}
+        <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
+          <button onClick={handleSubmit} style={modalStyles.btn}>
             Пополнить
           </button>
-          <button onClick={onClose} style={modalStyles.cancelBtn}>
+          <button onClick={onClose} style={modalStyles.btnCancel}>
             Отмена
           </button>
         </div>
@@ -59,40 +63,45 @@ const modalStyles: { [key: string]: React.CSSProperties } = {
     position: "fixed",
     top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
-    display: "flex", justifyContent: "center", alignItems: "center",
-    zIndex: 9999,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
   },
   modal: {
     backgroundColor: "#fff",
-    padding: "2rem",
-    borderRadius: "8px",
-    width: "300px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-    textAlign: "center",
+    padding: 20,
+    borderRadius: 8,
+    width: 320,
+    boxShadow: "0 0 10px rgba(0,0,0,0.3)",
+    display: "flex",
+    flexDirection: "column",
   },
   input: {
-    width: "100%",
-    padding: "0.5rem",
-    fontSize: "1rem",
-    marginBottom: "1rem",
+    padding: "8px 10px",
+    fontSize: 16,
+    borderRadius: 4,
+    border: "1px solid #ccc",
   },
-  buttons: {
-    display: "flex",
-    justifyContent: "space-between",
+  error: {
+    marginTop: 8,
+    color: "red",
+    fontSize: 14,
   },
-  depositBtn: {
-    backgroundColor: "#27ae60",
-    color: "#fff",
+  btn: {
+    backgroundColor: "#10b981",
     border: "none",
-    padding: "0.5rem 1rem",
-    borderRadius: "5px",
+    padding: "8px 16px",
+    borderRadius: 6,
+    color: "#fff",
+    fontWeight: "bold",
     cursor: "pointer",
   },
-  cancelBtn: {
-    backgroundColor: "#bdc3c7",
+  btnCancel: {
+    backgroundColor: "#ccc",
     border: "none",
-    padding: "0.5rem 1rem",
-    borderRadius: "5px",
+    padding: "8px 16px",
+    borderRadius: 6,
     cursor: "pointer",
   },
 };
