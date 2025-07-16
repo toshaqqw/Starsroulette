@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
-import TelegramLogin from "./components/TelegramLogin";
+import LoginModal from "./components/LoginModal"; // <-- Импортируем модалку
 import ProfilePage from "./components/ProfilePage";
 
 interface TelegramUser {
@@ -41,25 +41,6 @@ const Header: React.FC<{
   );
 };
 
-const Footer: React.FC = () => {
-  return (
-    <footer style={styles.footer}>
-      <NavLink
-        to="/"
-        style={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
-      >
-        🎲 Roulette
-      </NavLink>
-      <NavLink
-        to="/profile"
-        style={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
-      >
-        👤 Profile
-      </NavLink>
-    </footer>
-  );
-};
-
 const App: React.FC = () => {
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [showLogin, setShowLogin] = useState(false);
@@ -93,9 +74,7 @@ const App: React.FC = () => {
       />
 
       {showLogin && !user && (
-        <div style={{ padding: 20 }}>
-          <TelegramLogin botName="StartRule_bot" onAuth={handleAuth} />
-        </div>
+        <LoginModal botName="StartRule_bot" onAuth={handleAuth} onClose={() => setShowLogin(false)} />
       )}
 
       <Routes>
@@ -117,6 +96,25 @@ const App: React.FC = () => {
 
       <Footer />
     </>
+  );
+};
+
+const Footer: React.FC = () => {
+  return (
+    <footer style={styles.footer}>
+      <NavLink
+        to="/"
+        style={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+      >
+        🎲 Roulette
+      </NavLink>
+      <NavLink
+        to="/profile"
+        style={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+      >
+        👤 Profile
+      </NavLink>
+    </footer>
   );
 };
 
