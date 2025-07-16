@@ -12,9 +12,10 @@ interface TelegramUser {
 
 interface ProfilePageProps {
   user: TelegramUser;
+  onLogout: () => void;
 }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
+const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout }) => {
   return (
     <div style={styles.container}>
       <img
@@ -24,6 +25,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
       />
       <h2>{user.first_name} {user.last_name}</h2>
       <p>Добро пожаловать в ваш профиль!</p>
+      <button onClick={onLogout} style={styles.logoutBtn}>Выйти</button>
     </div>
   );
 };
@@ -42,6 +44,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "50%",
     marginBottom: "1rem",
     border: "3px solid #f39c12",
+  },
+  logoutBtn: {
+    marginTop: "1rem",
+    padding: "0.5rem 1rem",
+    backgroundColor: "#f39c12",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    color: "#121212",
+    fontWeight: "bold",
   },
 };
 
