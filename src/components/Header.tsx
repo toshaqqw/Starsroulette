@@ -7,6 +7,7 @@ interface HeaderProps {
   balance?: number;
   onLoginClick?: () => void;
   onAvatarClick?: () => void;
+  onDepositClick?: () => void; 
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -15,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({
   balance = 0,
   onLoginClick,
   onAvatarClick,
+  onDepositClick,
 }) => {
   const navigate = useNavigate();
 
@@ -22,13 +24,25 @@ const Header: React.FC<HeaderProps> = ({
     <header style={styles.header}>
       <div style={styles.logo} onClick={() => navigate("/")}>StarsRoulette</div>
       {username ? (
-        <div style={styles.user} onClick={onAvatarClick}>
-          <img src={avatar || "https://i.pravatar.cc/40"} alt="avatar" style={styles.avatar} />
-          <span>{username}</span>
+        <div style={styles.user}>
+          <img
+            src={avatar || "https://i.pravatar.cc/40"}
+            alt="avatar"
+            style={styles.avatar}
+            onClick={onAvatarClick}
+          />
+          <span onClick={onAvatarClick} style={{ cursor: "pointer" }}>
+            {username}
+          </span>
           <span style={styles.balance}>Баланс: {balance.toFixed(2)} ₽</span>
+          <button style={styles.depositBtn} onClick={onDepositClick}>
+            Пополнить
+          </button>
         </div>
       ) : (
-        <button style={styles.loginBtn} onClick={onLoginClick}>Войти через Telegram</button>
+        <button style={styles.loginBtn} onClick={onLoginClick}>
+          Войти через Telegram
+        </button>
       )}
     </header>
   );
@@ -52,7 +66,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     alignItems: "center",
     gap: "0.75rem",
-    cursor: "pointer",
   },
   avatar: {
     width: 40,
@@ -62,6 +75,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   balance: {
     marginLeft: "1rem",
     fontWeight: 600,
+  },
+  depositBtn: {
+    marginLeft: "1rem",
+    backgroundColor: "#10b981",
+    border: "none",
+    padding: "0.4rem 0.8rem",
+    borderRadius: "8px",
+    color: "#fff",
+    fontWeight: "bold",
+    cursor: "pointer",
   },
   loginBtn: {
     background: "#f39c12",
