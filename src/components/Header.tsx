@@ -9,7 +9,13 @@ interface HeaderProps {
   onAvatarClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ username, avatar, balance = 0, onLoginClick, onAvatarClick }) => {
+const Header: React.FC<HeaderProps> = ({
+  username,
+  avatar,
+  balance = 0,
+  onLoginClick,
+  onAvatarClick,
+}) => {
   const navigate = useNavigate();
 
   return (

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
-import LoginModal from "./components/LoginModal"; // <-- Импортируем модалку
+import LoginModal from "./components/LoginModal"; 
 import ProfilePage from "./components/ProfilePage";
+
+
 
 interface TelegramUser {
   id: string;
@@ -53,10 +55,17 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Добавляем этот useEffect для автоматического закрытия модалки при появлении пользователя
+  useEffect(() => {
+    if (user) {
+      setShowLogin(false);
+    }
+  }, [user]);
+
   const handleAuth = (tgUser: TelegramUser) => {
     setUser(tgUser);
     localStorage.setItem("telegramUser", JSON.stringify(tgUser));
-    setShowLogin(false);
+    // setShowLogin(false); // можно убрать, так как закрываем модалку в useEffect
   };
 
   const handleLogout = () => {
